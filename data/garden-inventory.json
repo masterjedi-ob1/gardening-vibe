@@ -1,0 +1,36 @@
+{
+  "_comment": "Seed data captured from Chris's Granola note 'Garden App w/ Inventory' (Jun 1, 2026). This is the real summer 2026 garden — used to bootstrap the app's plant inventory.",
+  "gardeners": ["Chris", "Bill"],
+  "season": "Summer 2026",
+  "dedication": "In memory of Beatrice McCarthy — the family green thumb.",
+  "plants": [
+    { "name": "Sweet Banana Pepper", "type": "pepper", "qty": 3, "sun": "full", "notes": "" },
+    { "name": "Cantaloupe", "type": "melon", "qty": 4, "sun": "full", "notes": "needs space to vine" },
+    { "name": "Sweet Basil (large)", "type": "herb", "qty": 1, "sun": "full", "notes": "" },
+    { "name": "Thai Basil", "type": "herb", "qty": 1, "sun": "full", "notes": "" },
+    { "name": "Purple Basil", "type": "herb", "qty": 1, "sun": "full", "notes": "" },
+    { "name": "Common Chive", "type": "herb", "qty": 1, "sun": "partial", "notes": "" },
+    { "name": "Summer Squash", "type": "squash", "qty": 1, "sun": "full", "notes": "" },
+    { "name": "Common Squash", "type": "squash", "qty": 1, "sun": "full", "notes": "" },
+    { "name": "Charred Yellow Chard", "type": "leafy-green", "qty": 4, "sun": "partial", "notes": "" },
+    { "name": "Cilantro", "type": "herb", "qty": 2, "sun": "partial", "notes": "bolts in heat" },
+    { "name": "Rosemary", "type": "herb", "qty": 2, "sun": "full", "notes": "perennial" },
+    { "name": "Ping Tongue Long Eggplant", "type": "eggplant", "qty": 1, "sun": "full", "notes": "Japanese varietal" },
+    { "name": "Sun Gold Tomato", "type": "tomato", "qty": 1, "sun": "full", "notes": "cherry, indeterminate — needs support" },
+    { "name": "Cherokee Purple Tomato", "type": "tomato", "qty": 1, "sun": "full", "notes": "heirloom, indeterminate — needs support" },
+    { "name": "Hungarian Black Pepper", "type": "pepper", "qty": 2, "sun": "full", "notes": "" }
+  ],
+  "wishlist": [
+    { "name": "Beefsteak Tomato", "type": "tomato" },
+    { "name": "Roma Tomato", "type": "tomato" },
+    { "name": "Heirloom Tomato (assorted)", "type": "tomato" }
+  ],
+  "supplies": [
+    { "item": "Planter pots", "qty": 3, "spec": "36\" x 6-8\"" },
+    { "item": "Bricks (for above-ground planter)", "qty": 12, "spec": "" },
+    { "item": "Miracle-Gro raised bed soil (organic)", "qty": 2, "spec": "bags" },
+    { "item": "Miracle-Gro standard organic soil", "qty": 1, "spec": "bags" },
+    { "item": "Miracle-Gro standard non-organic soil", "qty": 2, "spec": "bags" },
+    { "item": "Miracle-Gro plant food spray adapter", "qty": 1, "spec": "food attached" }
+  ]
+}
