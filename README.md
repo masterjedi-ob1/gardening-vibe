@@ -1,4 +1,4 @@
-# AI Greenthumb 🌱
+# GardZen 🌱🧘
 
 A web-first **garden manager + mindfulness companion** for growing a home vegetable garden —
 practical AI green thumb meets Zen nature-connection. Built for Chris & Bill, Summer 2026.
@@ -8,10 +8,10 @@ practical AI green thumb meets Zen nature-connection. Built for Chris & Bill, Su
 ## What it does (planned)
 - 🌿 **Garden inventory** — track plants, beds, and supplies (seeded with the real 2026 garden)
 - 📸 **Photo diagnosis** — snap a leaf, get plant ID + health/disease/pest read + calm advice
-- 🤖 **AI Greenthumb** — a coach grounded in *your* garden, zone, and journal history
+- 🤖 **The Green Thumb** — an AI coach grounded in *your* garden, zone, and journal history
 - 🔔 **Calm reminders** — water/feed/sow/harvest, framed as rituals, not nagging
 - 📔 **Growth journal** — photo timeline + harvest log
-- 🧘 **Mindfulness** — daily "tend your garden" check-ins and a Zen seasonal rhythm
+- 🧘 **Mindfulness** — gamified daily questions rooted in Stoic / Buddhist / meditative practice
 
 ## Repo
 - `data/garden-inventory.json` — the real Summer 2026 garden (seed data)
@@ -25,4 +25,4 @@ practical AI green thumb meets Zen nature-connection. Built for Chris & Bill, Su
 Greenfield — foundation docs + research + seed data in place. Next: confirm stack, scaffold
 Next.js + Supabase, build inventory + journal MVP. See `docs/PROJECT_PLAN.md`.
 
-**Proposed stack:** Next.js + TypeScript + Tailwind (PWA) · Supabase · Vercel · Claude (Haiku) for coach + vision.
+**Stack (locked):** Next.js + TypeScript + Tailwind (responsive PWA) · Supabase · Vercel · Claude (Haiku) coach · **Qwen2.5-VL** vision. Target: launchable MVP in 2–3 days.

@@ -1,7 +1,7 @@
-# CLAUDE.md — AI Greenthumb 🌱
+# CLAUDE.md — GardZen 🌱🧘
 
 > Guidance for Claude Code (and humans) working in this repo.
-> **Working title:** AI Greenthumb · **Dedication:** In memory of **Beatrice McCarthy**, the family green thumb.
+> **Name:** GardZen · **In-app AI coach persona:** "the Green Thumb" · **Dedication:** In memory of **Beatrice McCarthy**, the family green thumb.
 
 ## What this is
 
@@ -25,8 +25,10 @@ healing / spiritual** themes about touching grass, frequency, and connectedness 
    proactive suggestions ("stake the Cherokee Purple before it sets fruit").
 3. **Vision Diagnosis** — snap a photo → identify plant, assess health, flag
    disease/pest/nutrient issues, recommend treatment.
-4. **Mindfulness & Accountability** — daily "touch grass" check-ins, reflective prompts,
-   streaks/gentle nudges, a calm Zen-themed UI. Accountability is encouraging, never nagging.
+4. **Mindfulness & Accountability** — a **gamified daily-question practice** rooted in
+   **Stoic, Buddhist, and spiritual/meditative** traditions: short daily reflective prompts
+   tied to tending the garden, with streaks/gentle progression. Calm Zen-themed UI;
+   accountability is encouraging, never nagging.
 
 ## Real seed data
 
@@ -34,21 +36,23 @@ healing / spiritual** themes about touching grass, frequency, and connectedness 
 3 basils, Sun Gold + Cherokee Purple tomatoes, banana & Hungarian black peppers, cantaloupe,
 eggplant, chard, etc.), a tomato wishlist, and supplies on hand. Use it to bootstrap the DB.
 
-## Tech stack (proposed — keep it cheap & solo-friendly)
+## Tech stack (LOCKED for MVP)
 
-> Confirm with Chris before locking. Optimized for one vibe-coder using Claude Code, free
-> tiers, and a short path from web → mobile.
+> Optimized for one vibe-coder using Claude Code, free tiers, and a 2–3 day path to a
+> launchable MVP. Web-first and **mobile-friendly/responsive (PWA)** — **no iOS/Android app
+> store until Phase 2** (post-MVP).
 
-- **Frontend:** Next.js (App Router) + TypeScript + Tailwind + shadcn/ui. Ship as a **PWA**
-  (installable, offline-ish) for an instant mobile feel; wrap with Capacitor or port to Expo
-  later if native is needed.
-- **Backend/data:** Supabase (Postgres + Auth + Storage for plant photos). Generous free tier.
-- **Hosting:** Vercel (free hobby tier). A Vercel MCP is available in this workspace.
+- **Frontend:** Next.js (App Router) + TypeScript + Tailwind + shadcn/ui. Responsive,
+  installable **PWA** (camera, home-screen icon, offline-ish) — great on a phone browser
+  without any app store. Native (Expo/Capacitor) deferred to Phase 2.
+- **Backend/data:** Supabase (Postgres + Auth + Storage for plant photos). Free tier.
+- **Hosting:** Vercel (free hobby tier) for the starter. Vercel MCP available in this workspace.
 - **AI text/coach:** Anthropic Claude (default to **Haiku** for cost; escalate to Sonnet for
   hard reasoning). Prompts grounded in live garden state via tool calls / context.
-- **AI vision:** see `docs/AI_MODELS.md`. Strategy = cheap hosted multimodal model for
-  general "what's going on with this plant" reasoning + a specialized, locally-runnable
-  plant-disease classifier for fast, free, accurate first-pass labels.
+- **AI vision:** **Qwen2.5-VL** (open-weight, Apache-2.0) is the chosen vision model —
+  **Andrew Brown** is helping host/tune it (likely Ollama/HF endpoint). Claude Haiku vision is
+  the fallback while Qwen is being stood up. Optional later: a small on-device plant-disease
+  classifier (MobileNetV2) for offline first-pass labels. See `docs/AI_MODELS.md`.
 
 ## Repo layout (planned)
 

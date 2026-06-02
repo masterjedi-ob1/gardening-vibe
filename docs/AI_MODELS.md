@@ -51,11 +51,15 @@ Ollama / llama.cpp:
   default for tier 2 — no infra, strong reasoning, low cost, and it doubles as the text coach
   so we maintain one provider. Compare vs. open Qwen-VL on a cheap GPU host for volume.
 
-## Recommended starting point (path of least resistance)
+## Decision (locked, Jun 2 2026)
 
-1. **Coach + vision = Claude Haiku** to ship fast (one API, vision included).
-2. Add **MobileNetV2 plant-disease classifier** (HF) as a cheap accuracy booster + offline
-   option once the loop works.
-3. Revisit local Qwen2.5-VL only if API cost or privacy pushes us off hosted.
+1. **Vision = Qwen2.5-VL** (open-weight, Apache-2.0). **Andrew Brown** is helping host/tune it
+   (Ollama or HF Inference Endpoint). Called behind a thin `lib/vision` interface so the
+   provider can swap without touching the app.
+2. **Day-1 fallback = Claude Haiku vision** — lets the diagnosis flow ship immediately while
+   Qwen is stood up; flip the `lib/vision` provider when Qwen is live.
+3. **Later booster:** **MobileNetV2 plant-disease classifier** (HF) for a cheap, offline,
+   on-device first-pass label; Pl@ntNet free tier (≤500/day) for pure ID.
+4. **Coach = Claude Haiku** (text), Sonnet for hard reasoning.
 
-_Detailed dataset/cost analysis lands in `docs/RESEARCH_VISION.md` (agent in progress)._
+_Detailed dataset/cost analysis in `docs/RESEARCH_VISION.md`._
