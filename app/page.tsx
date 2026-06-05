@@ -1,0 +1,124 @@
+import Link from "next/link";
+import { Header } from "@/components/layout/Header";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Sprout, BookOpen, MessageCircle, Camera, Flame } from "lucide-react";
+import { getTodaysPrompt } from "@/lib/ai/prompts";
+
+const FEATURES = [
+  {
+    icon: Sprout,
+    title: "Garden Inventory",
+    desc: "Your plants, beds, and supplies — at a glance.",
+    href: "/garden",
+    color: "text-garden-600 bg-garden-50",
+  },
+  {
+    icon: BookOpen,
+    title: "Growth Journal",
+    desc: "Log observations, photos, and harvests over time.",
+    href: "/journal",
+    color: "text-soil-600 bg-soil-50",
+  },
+  {
+    icon: MessageCircle,
+    title: "Green Thumb",
+    desc: "Your AI garden coach — grounded in your real garden.",
+    href: "/coach",
+    color: "text-zen-600 bg-zen-50",
+  },
+  {
+    icon: Camera,
+    title: "Diagnose a Plant",
+    desc: "Snap a photo for health + pest + disease insights.",
+    href: "/diagnose",
+    color: "text-amber-600 bg-amber-50",
+  },
+];
+
+export default function Home() {
+  const todaysPrompt = getTodaysPrompt();
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  const TRADITION_EMOJI: Record<string, string> = {
+    stoic: "⚡",
+    buddhist: "🪷",
+    spiritual: "✨",
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+
+      {/* Hero */}
+      <section className="bg-garden-wash px-4 py-12 text-center">
+        <div className="max-w-lg mx-auto space-y-4">
+          <div className="text-5xl">🌱</div>
+          <h1 className="text-3xl font-bold text-stone-800 tracking-tight">
+            {greeting}, Chris.
+          </h1>
+          <p className="text-stone-500 leading-relaxed">
+            Your Summer 2026 garden is growing. Take a moment to tend it with care.
+          </p>
+          <div className="italic text-sm text-stone-400 pt-1">
+            In memory of Beatrice McCarthy — the family green thumb.
+          </div>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <Button asChild size="lg">
+              <Link href="/garden">View My Garden</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/coach">Ask the Coach</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Daily check-in */}
+      <section className="max-w-3xl mx-auto w-full px-4 py-6">
+        <Link href="/checkin">
+          <Card className="bg-zen-50 border-zen-200 hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">{TRADITION_EMOJI[todaysPrompt.tradition]}</span>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium text-zen-800">Today&apos;s reflection</p>
+                    <div className="flex items-center gap-1 text-xs text-amber-600">
+                      <Flame className="h-3.5 w-3.5" />
+                      <span>Keep your streak</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-zen-600 mt-1 italic leading-relaxed">
+                    &ldquo;{todaysPrompt.prompt}&rdquo;
+                  </p>
+                  <p className="text-xs text-zen-500 mt-2 capitalize">
+                    {todaysPrompt.tradition} practice · tap to reflect
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+      </section>
+
+      {/* Feature grid */}
+      <section className="max-w-3xl mx-auto w-full px-4 pb-12 grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {FEATURES.map(({ icon: Icon, title, desc, href, color }) => (
+          <Link key={href} href={href}>
+            <Card className="h-full hover:shadow-md transition-shadow cursor-pointer">
+              <CardContent className="p-4 flex flex-col gap-2">
+                <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${color}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <p className="font-medium text-sm text-stone-800 leading-tight">{title}</p>
+                <p className="text-xs text-stone-400 leading-snug">{desc}</p>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </section>
+    </div>
+  );
+}

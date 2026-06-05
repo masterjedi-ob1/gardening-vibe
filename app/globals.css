@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 0.625rem;
+  --background: 250 249 247;
+  --foreground: 28 25 23;
+}
+
+@layer base {
+  * {
+    @apply border-stone-200;
+  }
+  body {
+    @apply bg-stone-50 text-stone-900 antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  /* Smooth scroll for the full page */
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  /* Soft garden texture background for hero areas */
+  .bg-garden-wash {
+    background: linear-gradient(
+      135deg,
+      theme(colors.garden.50) 0%,
+      theme(colors.soil.50) 50%,
+      theme(colors.zen.50) 100%
+    );
+  }
+  /* Subtle leaf-pattern divider */
+  .divider-leaf::after {
+    content: "🌿";
+    @apply block text-center my-4 opacity-30 text-lg;
+  }
+}
