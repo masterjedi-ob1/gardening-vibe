@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Sprout, BookOpen, MessageCircle, Camera } from "lucide-react";
+import { Sprout, BookOpen, MessageCircle, Camera, Flame } from "lucide-react";
+import { getTodaysPrompt } from "@/lib/ai/prompts";
 
 const FEATURES = [
   {
@@ -36,12 +37,15 @@ const FEATURES = [
 ];
 
 export default function Home() {
-  const today = new Date();
-  const greeting = today.getHours() < 12
-    ? "Good morning"
-    : today.getHours() < 17
-    ? "Good afternoon"
-    : "Good evening";
+  const todaysPrompt = getTodaysPrompt();
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
+  const TRADITION_EMOJI: Record<string, string> = {
+    stoic: "⚡",
+    buddhist: "🪷",
+    spiritual: "✨",
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -60,30 +64,43 @@ export default function Home() {
           <div className="italic text-sm text-stone-400 pt-1">
             In memory of Beatrice McCarthy — the family green thumb.
           </div>
-          <div className="pt-2">
+          <div className="flex items-center justify-center gap-3 pt-2">
             <Button asChild size="lg">
               <Link href="/garden">View My Garden</Link>
+            </Button>
+            <Button asChild size="lg" variant="outline">
+              <Link href="/coach">Ask the Coach</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Daily check-in nudge */}
+      {/* Daily check-in */}
       <section className="max-w-3xl mx-auto w-full px-4 py-6">
-        <Card className="bg-zen-50 border-zen-200">
-          <CardContent className="p-5">
-            <div className="flex items-start gap-3">
-              <span className="text-2xl">🧘</span>
-              <div>
-                <p className="font-medium text-zen-800">Today&apos;s reflection</p>
-                <p className="text-sm text-zen-600 mt-1 italic leading-relaxed">
-                  &ldquo;What is one small thing in your garden that is outside your control today — and can you let it be?&rdquo;
-                </p>
-                <p className="text-xs text-zen-500 mt-2">Stoic practice · Day 1</p>
+        <Link href="/checkin">
+          <Card className="bg-zen-50 border-zen-200 hover:shadow-md transition-shadow cursor-pointer">
+            <CardContent className="p-5">
+              <div className="flex items-start gap-3">
+                <span className="text-2xl">{TRADITION_EMOJI[todaysPrompt.tradition]}</span>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium text-zen-800">Today&apos;s reflection</p>
+                    <div className="flex items-center gap-1 text-xs text-amber-600">
+                      <Flame className="h-3.5 w-3.5" />
+                      <span>Keep your streak</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-zen-600 mt-1 italic leading-relaxed">
+                    &ldquo;{todaysPrompt.prompt}&rdquo;
+                  </p>
+                  <p className="text-xs text-zen-500 mt-2 capitalize">
+                    {todaysPrompt.tradition} practice · tap to reflect
+                  </p>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
       </section>
 
       {/* Feature grid */}

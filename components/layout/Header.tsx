@@ -10,23 +10,20 @@ export function Header() {
           <span className="font-semibold text-stone-800 tracking-tight">GardZen</span>
         </Link>
         <nav className="flex items-center gap-1">
-          <Link
-            href="/garden"
-            className="text-sm text-stone-500 hover:text-garden-600 px-3 py-1.5 rounded-md hover:bg-garden-50 transition-colors"
-          >
+          <Link href="/garden" className="text-sm text-stone-500 hover:text-garden-600 px-2.5 py-1.5 rounded-md hover:bg-garden-50 transition-colors">
             Garden
           </Link>
-          <Link
-            href="/journal"
-            className="text-sm text-stone-500 hover:text-garden-600 px-3 py-1.5 rounded-md hover:bg-garden-50 transition-colors"
-          >
+          <Link href="/journal" className="text-sm text-stone-500 hover:text-garden-600 px-2.5 py-1.5 rounded-md hover:bg-garden-50 transition-colors">
             Journal
           </Link>
-          <Link
-            href="/coach"
-            className="text-sm text-stone-500 hover:text-garden-600 px-3 py-1.5 rounded-md hover:bg-garden-50 transition-colors"
-          >
-            Green Thumb
+          <Link href="/checkin" className="text-sm text-stone-500 hover:text-garden-600 px-2.5 py-1.5 rounded-md hover:bg-garden-50 transition-colors">
+            Reflect
+          </Link>
+          <Link href="/coach" className="text-sm text-stone-500 hover:text-garden-600 px-2.5 py-1.5 rounded-md hover:bg-garden-50 transition-colors">
+            Coach
+          </Link>
+          <Link href="/diagnose" className="text-sm text-stone-500 hover:text-garden-600 px-2.5 py-1.5 rounded-md hover:bg-garden-50 transition-colors hidden sm:block">
+            Diagnose
           </Link>
         </nav>
       </div>
