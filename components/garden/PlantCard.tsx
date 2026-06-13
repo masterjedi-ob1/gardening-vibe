@@ -1,7 +1,11 @@
+"use client";
+
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plant } from "@/lib/types";
-import { Leaf, Sun, CloudSun, Cloudy } from "lucide-react";
+import { Bed, Plant } from "@/lib/types";
+import { Leaf, Sun, CloudSun, Cloudy, Pencil } from "lucide-react";
+import { PlantDialog } from "./PlantDialog";
 
 const TYPE_EMOJI: Record<string, string> = {
   tomato: "🍅",
@@ -19,13 +23,20 @@ const SUN_ICON = {
   shade: Cloudy,
 };
 
-export function PlantCard({ plant }: { plant: Plant }) {
+interface PlantCardProps {
+  plant: Plant;
+  beds?: Bed[];
+  editable?: boolean;
+}
+
+export function PlantCard({ plant, beds = [], editable = false }: PlantCardProps) {
+  const [editOpen, setEditOpen] = useState(false);
   const emoji = TYPE_EMOJI[plant.type] ?? "🌱";
-  const SunIcon = SUN_ICON[plant.sun];
+  const SunIcon = SUN_ICON[plant.sun] ?? Sun;
   const isWishlist = plant.status === "wishlist";
 
   return (
-    <Card className={`animate-fade-in transition-shadow hover:shadow-md ${isWishlist ? "opacity-70 border-dashed" : ""}`}>
+    <Card className={`group animate-fade-in transition-shadow hover:shadow-md ${isWishlist ? "opacity-70 border-dashed" : ""}`}>
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-start gap-3">
@@ -52,11 +63,26 @@ export function PlantCard({ plant }: { plant: Plant }) {
           </p>
         )}
 
-        <div className="mt-2.5 flex items-center gap-1.5 text-xs text-stone-400">
-          <SunIcon className="h-3.5 w-3.5 text-amber-400" />
-          <span>{plant.sun} sun</span>
+        <div className="mt-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs text-stone-400">
+            <SunIcon className="h-3.5 w-3.5 text-amber-400" />
+            <span>{plant.sun} sun</span>
+          </div>
+          {editable && (
+            <button
+              onClick={() => setEditOpen(true)}
+              className="flex items-center gap-1 text-xs text-garden-600 hover:text-garden-800 opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+              aria-label={`Tend ${plant.name}`}
+            >
+              <Pencil className="h-3 w-3" /> Tend
+            </button>
+          )}
         </div>
       </CardContent>
+
+      {editable && editOpen && (
+        <PlantDialog beds={beds} plant={plant} open={editOpen} onOpenChange={setEditOpen} />
+      )}
     </Card>
   );
 }
