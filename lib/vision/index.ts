@@ -61,11 +61,17 @@ export async function diagnoseImage(
   gardenContext?: string
 ): Promise<DiagnosisResult> {
   const endpoint = process.env.VISION_ENDPOINT_URL;
-  if (endpoint) {
-    return diagnoseWithQwen(imageBase64, mimeType, endpoint, gardenContext);
-  }
-  if (process.env.VISION_PROVIDER === "huggingface") {
-    return diagnoseWithHuggingFace(imageBase64, mimeType, gardenContext);
+  // Try the configured provider first; fall back to Haiku on any failure so a
+  // flaky/unavailable Qwen provider can never break diagnosis.
+  try {
+    if (endpoint) {
+      return await diagnoseWithQwen(imageBase64, mimeType, endpoint, gardenContext);
+    }
+    if (process.env.VISION_PROVIDER === "huggingface") {
+      return await diagnoseWithHuggingFace(imageBase64, mimeType, gardenContext);
+    }
+  } catch (err) {
+    console.error("Primary vision provider failed; falling back to Haiku:", err);
   }
   return diagnoseWithHaiku(imageBase64, mimeType, gardenContext);
 }
