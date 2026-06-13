@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createGuestDataClient } from "@/lib/supabase/data";
+import { formatGardenContext } from "@/lib/garden";
 import { queryGardenKnowledge } from "@/lib/ai/notebooklm";
+import { COACH_NO_KEY, extractAssistantText } from "@/lib/ai/anthropic";
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest } from "next/server";
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const GREEN_THUMB_SYSTEM = `You are the Green Thumb — a warm, wise, and calm garden coach for Chris & Bill's Summer 2026 home vegetable garden. You speak like a knowledgeable friend who happens to know everything about growing vegetables, not like an app or assistant.
 
@@ -21,6 +21,14 @@ export async function POST(request: NextRequest) {
       messages: { role: "user" | "assistant"; content: string }[];
     };
 
+    // No key → degrade calmly in-thread rather than 500. (Construct the client
+    // lazily so a missing key never throws at module load and takes the route
+    // down on import.)
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.warn("Chat: ANTHROPIC_API_KEY not set — returning degraded reply.");
+      return Response.json({ reply: COACH_NO_KEY });
+    }
+
     const lastUserMessage = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
 
     // Fetch garden state + optional NotebookLM knowledge in parallel
@@ -33,6 +41,7 @@ export async function POST(request: NextRequest) {
     if (gardenData) systemPrompt += `\n\n--- THEIR GARDEN (Summer 2026) ---\n${gardenData}`;
     if (notebooklmContext) systemPrompt += `\n\n--- GARDENING KNOWLEDGE BASE ---\n${notebooklmContext}`;
 
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     const response = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 512,
@@ -40,8 +49,7 @@ export async function POST(request: NextRequest) {
       messages,
     });
 
-    const text = response.content[0].type === "text" ? response.content[0].text : "";
-    return Response.json({ reply: text });
+    return Response.json({ reply: extractAssistantText(response) });
   } catch (error) {
     console.error("Chat API error:", error);
     return Response.json(
@@ -53,21 +61,15 @@ export async function POST(request: NextRequest) {
 
 async function fetchGardenContext(): Promise<string | null> {
   try {
-    const supabase = await createClient();
+    // Guest-mode reads go through the service-role client; the anon client would
+    // be blocked by RLS for the seeded (gardener_id NULL) garden. See
+    // lib/supabase/data.ts.
+    const supabase = createGuestDataClient();
     const [{ data: plants }, { data: beds }] = await Promise.all([
       supabase.from("plants").select("name,type,qty,status,notes,sun").order("type"),
       supabase.from("beds").select("name,type"),
     ]);
-    if (!plants?.length) return null;
-    const active = plants.filter((p) => p.status !== "wishlist");
-    const wishlist = plants.filter((p) => p.status === "wishlist");
-    return (
-      `Beds: ${beds?.map((b) => b.name).join(", ") ?? "none"}\n` +
-      `Active plants (${active.length}): ${active
-        .map((p) => `${p.name} ×${p.qty} (${p.type}${p.notes ? ", " + p.notes : ""})`)
-        .join("; ")}\n` +
-      `Wishlist: ${wishlist.map((p) => p.name).join(", ")}`
-    );
+    return formatGardenContext(plants, beds);
   } catch {
     return null;
   }

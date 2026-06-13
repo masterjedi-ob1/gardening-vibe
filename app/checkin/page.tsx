@@ -25,6 +25,7 @@ export default function CheckinPage() {
   const [submitted, setSubmitted] = useState(false);
   const [streak, setStreak] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/checkin")
@@ -36,6 +37,7 @@ export default function CheckinPage() {
     e.preventDefault();
     if (!response.trim() || !prompt) return;
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch("/api/checkin", {
         method: "POST",
@@ -48,8 +50,12 @@ export default function CheckinPage() {
         }),
       });
       const data = await res.json();
+      // Only celebrate a real save — don't report success the server didn't give.
+      if (!res.ok) throw new Error(data.error ?? "Could not save your reflection.");
       setStreak(data.streak ?? 1);
       setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not save your reflection.");
     } finally {
       setLoading(false);
     }
@@ -118,6 +124,8 @@ export default function CheckinPage() {
                 className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-garden-500 bg-white resize-none"
               />
             </div>
+
+            {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
             <Button type="submit" className="w-full" disabled={!response.trim() || loading}>
               {loading ? "Saving…" : "Save reflection"}

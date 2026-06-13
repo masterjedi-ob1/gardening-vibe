@@ -4,13 +4,15 @@ import { SuppliesCard } from "@/components/garden/SuppliesCard";
 import { PlantCard } from "@/components/garden/PlantCard";
 import { GardenToolbar } from "@/components/garden/GardenToolbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { createClient } from "@/lib/supabase/server";
+import { createGuestDataClient } from "@/lib/supabase/data";
 import { Bed, Plant, Supply } from "@/lib/types";
 
 export const revalidate = 0;
 
 async function getGardenData() {
-  const supabase = await createClient();
+  // Guest-mode reads via the service-role client — the anon client is blocked by
+  // RLS for the seeded (gardener_id NULL) garden. See lib/supabase/data.ts.
+  const supabase = createGuestDataClient();
 
   const [plantsRes, bedsRes, suppliesRes] = await Promise.all([
     supabase
