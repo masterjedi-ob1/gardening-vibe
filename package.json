@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "verify:storage": "node scripts/verify-storage.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",
