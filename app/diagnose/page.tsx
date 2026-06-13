@@ -88,7 +88,7 @@ export default function DiagnosePage() {
             <Camera className="h-10 w-10" />
             <div>
               <p className="font-medium">Tap to take or choose a photo</p>
-              <p className="text-xs mt-0.5">JPG, PNG, HEIC up to 10 MB</p>
+              <p className="text-xs mt-0.5">JPG, PNG, or WebP up to 10 MB</p>
             </div>
             <input ref={fileRef} type="file" accept="image/*" capture="environment" onChange={handleFile} className="hidden" />
           </button>

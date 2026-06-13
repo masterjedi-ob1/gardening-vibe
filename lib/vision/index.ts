@@ -5,6 +5,8 @@
 //   2. VISION_PROVIDER=huggingface  → HuggingFace Inference API (Qwen2.5-VL)
 //   3. otherwise                    → Claude Haiku vision (always-on fallback)
 
+import { normalizeImageMime } from "./mime";
+
 export interface DiagnosisResult {
   plant: string;
   health: "healthy" | "stressed" | "diseased" | "pest-damaged" | "nutrient-deficient" | "unknown";
@@ -31,7 +33,7 @@ Be encouraging, never alarming. Suggest consulting a local extension service for
 
 // Coerce an arbitrary object into a safe DiagnosisResult so the UI never sees
 // undefined fields (it reads result.flags.length and result.confidence).
-function normalizeDiagnosis(parsed: Record<string, unknown>, model: string): DiagnosisResult {
+export function normalizeDiagnosis(parsed: Record<string, unknown>, model: string): DiagnosisResult {
   return {
     plant: typeof parsed.plant === "string" ? parsed.plant : "unknown",
     health: (parsed.health as DiagnosisResult["health"]) ?? "unknown",
@@ -44,7 +46,7 @@ function normalizeDiagnosis(parsed: Record<string, unknown>, model: string): Dia
 }
 
 // Pull the first JSON object out of a model's text response; never throws.
-function parseDiagnosis(text: string, model: string): DiagnosisResult {
+export function parseDiagnosis(text: string, model: string): DiagnosisResult {
   let parsed: Record<string, unknown> = {};
   try {
     const jsonMatch = text.match(/\{[\s\S]*\}/);
@@ -84,6 +86,11 @@ async function diagnoseWithHaiku(
   const { Anthropic } = await import("@anthropic-ai/sdk");
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
+  // Anthropic vision only accepts jpeg/png/gif/webp. Normalise (HEIC/unknown is
+  // rejected upstream in the route) and default to jpeg so we never send a
+  // media_type the API will 400 on.
+  const mediaType = normalizeImageMime(mimeType) ?? "image/jpeg";
+
   const response = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 512,
@@ -94,7 +101,7 @@ async function diagnoseWithHaiku(
         content: [
           {
             type: "image",
-            source: { type: "base64", media_type: mimeType as "image/jpeg", data: imageBase64 },
+            source: { type: "base64", media_type: mediaType, data: imageBase64 },
           },
           { type: "text", text: "Please diagnose this plant." },
         ],
