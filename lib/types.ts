@@ -1,6 +1,22 @@
-export type PlantStatus = "wishlist" | "planned" | "planted" | "growing" | "harvesting" | "done";
-export type SunRequirement = "full" | "partial" | "shade";
-export type BedType = "raised" | "container" | "in-ground" | "pot";
+// Canonical vocabularies — the single source of truth for validation (API routes),
+// form options (components/garden/options.ts), and the union types below.
+export const PLANT_STATUSES = ["wishlist", "planned", "planted", "growing", "harvesting", "done"] as const;
+export const SUN_REQUIREMENTS = ["full", "partial", "shade"] as const;
+export const BED_TYPES = ["raised", "container", "in-ground", "pot"] as const;
+
+export type PlantStatus = (typeof PLANT_STATUSES)[number];
+export type SunRequirement = (typeof SUN_REQUIREMENTS)[number];
+export type BedType = (typeof BED_TYPES)[number];
+
+export function isPlantStatus(v: unknown): v is PlantStatus {
+  return typeof v === "string" && (PLANT_STATUSES as readonly string[]).includes(v);
+}
+export function isSunRequirement(v: unknown): v is SunRequirement {
+  return typeof v === "string" && (SUN_REQUIREMENTS as readonly string[]).includes(v);
+}
+export function isBedType(v: unknown): v is BedType {
+  return typeof v === "string" && (BED_TYPES as readonly string[]).includes(v);
+}
 
 export interface Gardener {
   id: string;

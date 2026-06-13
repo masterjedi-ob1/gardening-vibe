@@ -1,9 +1,12 @@
 import { Bed, Plant } from "@/lib/types";
 import { PlantCard } from "./PlantCard";
+import { BedEditButton } from "./BedEditButton";
 import { Layers } from "lucide-react";
 
 interface BedSectionProps {
   bed: Bed & { plants: Plant[] };
+  beds?: Bed[];
+  editable?: boolean;
 }
 
 const BED_TYPE_LABEL: Record<string, string> = {
@@ -13,7 +16,7 @@ const BED_TYPE_LABEL: Record<string, string> = {
   pot: "Planter Pots",
 };
 
-export function BedSection({ bed }: BedSectionProps) {
+export function BedSection({ bed, beds = [], editable = false }: BedSectionProps) {
   return (
     <section className="space-y-3">
       <div className="flex items-center gap-2">
@@ -23,13 +26,14 @@ export function BedSection({ bed }: BedSectionProps) {
           {BED_TYPE_LABEL[bed.type] ?? bed.type}
         </span>
         <span className="text-xs text-stone-400">{bed.plants.length} plants</span>
+        {editable && <BedEditButton bed={bed} />}
       </div>
       {bed.notes && (
         <p className="text-xs text-stone-500 italic">{bed.notes}</p>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {bed.plants.map((plant) => (
-          <PlantCard key={plant.id} plant={plant} />
+          <PlantCard key={plant.id} plant={plant} beds={beds} editable={editable} />
         ))}
       </div>
     </section>

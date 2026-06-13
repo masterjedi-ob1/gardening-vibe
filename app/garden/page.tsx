@@ -2,6 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { BedSection } from "@/components/garden/BedSection";
 import { SuppliesCard } from "@/components/garden/SuppliesCard";
 import { PlantCard } from "@/components/garden/PlantCard";
+import { GardenToolbar } from "@/components/garden/GardenToolbar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createClient } from "@/lib/supabase/server";
 import { Bed, Plant, Supply } from "@/lib/types";
@@ -62,9 +63,12 @@ export default async function GardenPage() {
       <Header />
       <main className="max-w-3xl mx-auto w-full px-4 py-8 space-y-8 flex-1">
 
-        <div>
-          <h1 className="text-2xl font-bold text-stone-800">Your Garden</h1>
-          <p className="text-stone-500 text-sm mt-1">Summer 2026 · Chris &amp; Bill</p>
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-stone-800">Your Garden</h1>
+            <p className="text-stone-500 text-sm mt-1">Summer 2026 · Chris &amp; Bill</p>
+          </div>
+          <GardenToolbar beds={beds} />
         </div>
 
         {error && (
@@ -83,14 +87,14 @@ export default async function GardenPage() {
           {/* BED VIEW */}
           <TabsContent value="beds" className="space-y-8">
             {bedsWithPlants.map((bed) => (
-              <BedSection key={bed.id} bed={bed} />
+              <BedSection key={bed.id} bed={bed} beds={beds} editable />
             ))}
 
             {unassigned.length > 0 && (
               <section className="space-y-3">
                 <h2 className="font-semibold text-stone-600 text-sm">Unassigned plants</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {unassigned.map((p) => <PlantCard key={p.id} plant={p} />)}
+                  {unassigned.map((p) => <PlantCard key={p.id} plant={p} beds={beds} editable />)}
                 </div>
               </section>
             )}
@@ -99,7 +103,7 @@ export default async function GardenPage() {
               <section className="space-y-3">
                 <h2 className="font-semibold text-stone-600 text-sm">Wishlist 🌠</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {wishlist.map((p) => <PlantCard key={p.id} plant={p} />)}
+                  {wishlist.map((p) => <PlantCard key={p.id} plant={p} beds={beds} editable />)}
                 </div>
               </section>
             )}
@@ -115,7 +119,7 @@ export default async function GardenPage() {
           {/* ALL PLANTS VIEW */}
           <TabsContent value="all">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {plants.map((p) => <PlantCard key={p.id} plant={p} />)}
+              {plants.map((p) => <PlantCard key={p.id} plant={p} beds={beds} editable />)}
             </div>
             {plants.length === 0 && !error && (
               <p className="text-center py-16 text-stone-400">No plants yet.</p>
