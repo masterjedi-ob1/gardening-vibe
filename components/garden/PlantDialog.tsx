@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { PLANT_TYPES, PLANT_STATUSES, SUN_OPTIONS } from "./options";
+import { PLANT_TYPES, PLANT_STATUS_OPTIONS, SUN_OPTIONS } from "./options";
 import { Trash2 } from "lucide-react";
 
 interface PlantDialogProps {
@@ -140,7 +140,7 @@ export function PlantDialog({ beds, plant, open, onOpenChange }: PlantDialogProp
             <div className="grid gap-1.5">
               <Label htmlFor="plant-status">Status</Label>
               <Select id="plant-status" value={status} onChange={(e) => setStatus(e.target.value as Plant["status"])}>
-                {PLANT_STATUSES.map((s) => (
+                {PLANT_STATUS_OPTIONS.map((s) => (
                   <option key={s.value} value={s.value}>{s.label}</option>
                 ))}
               </Select>

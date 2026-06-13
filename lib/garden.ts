@@ -9,6 +9,6 @@ export async function getActiveGardenId(): Promise<string | null> {
     .select("id")
     .order("created_at", { ascending: true })
     .limit(1)
-    .single();
+    .maybeSingle();
   return data?.id ?? null;
 }

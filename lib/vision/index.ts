@@ -29,19 +29,30 @@ function buildSystemPrompt(gardenContext?: string): string {
 Be encouraging, never alarming. Suggest consulting a local extension service for serious issues.`;
 }
 
-// Pull the first JSON object out of a model's text response.
-function parseDiagnosis(text: string, model: string): DiagnosisResult {
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  const parsed = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+// Coerce an arbitrary object into a safe DiagnosisResult so the UI never sees
+// undefined fields (it reads result.flags.length and result.confidence).
+function normalizeDiagnosis(parsed: Record<string, unknown>, model: string): DiagnosisResult {
   return {
-    plant: parsed.plant ?? "unknown",
-    health: parsed.health ?? "unknown",
+    plant: typeof parsed.plant === "string" ? parsed.plant : "unknown",
+    health: (parsed.health as DiagnosisResult["health"]) ?? "unknown",
     confidence: typeof parsed.confidence === "number" ? parsed.confidence : 0,
-    summary: parsed.summary ?? "",
-    advice: parsed.advice ?? "",
-    flags: Array.isArray(parsed.flags) ? parsed.flags : [],
+    summary: typeof parsed.summary === "string" ? parsed.summary : "",
+    advice: typeof parsed.advice === "string" ? parsed.advice : "",
+    flags: Array.isArray(parsed.flags) ? parsed.flags.map(String) : [],
     model,
   };
+}
+
+// Pull the first JSON object out of a model's text response; never throws.
+function parseDiagnosis(text: string, model: string): DiagnosisResult {
+  let parsed: Record<string, unknown> = {};
+  try {
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) parsed = JSON.parse(jsonMatch[0]);
+  } catch {
+    // Model returned prose or malformed JSON — degrade to safe defaults.
+  }
+  return normalizeDiagnosis(parsed, model);
 }
 
 export async function diagnoseImage(
@@ -160,5 +171,5 @@ async function diagnoseWithQwen(
   if (typeof json?.answer === "string" || typeof json?.text === "string") {
     return parseDiagnosis(json.answer ?? json.text, "qwen2.5-vl");
   }
-  return { ...json, model: "qwen2.5-vl" } as DiagnosisResult;
+  return normalizeDiagnosis(json ?? {}, "qwen2.5-vl");
 }

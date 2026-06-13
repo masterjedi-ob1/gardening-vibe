@@ -1,9 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getActiveGardenId } from "@/lib/garden";
-import { BedType } from "@/lib/types";
+import { BedType, isBedType } from "@/lib/types";
 import { NextRequest } from "next/server";
-
-const BED_TYPES: BedType[] = ["raised", "container", "in-ground", "pot"];
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,7 +16,7 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "No garden found yet." }, { status: 404 });
     }
 
-    const type: BedType = BED_TYPES.includes(body.type) ? body.type : "raised";
+    const type: BedType = isBedType(body.type) ? body.type : "raised";
 
     const supabase = createAdminClient();
     const { data, error } = await supabase
@@ -27,7 +25,7 @@ export async function POST(request: NextRequest) {
         garden_id: gardenId,
         name,
         type,
-        notes: body.notes?.trim() || null,
+        notes: typeof body.notes === "string" ? body.notes.trim() || null : null,
       })
       .select()
       .single();

@@ -1,8 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { BedType } from "@/lib/types";
+import { isBedType } from "@/lib/types";
 import { NextRequest } from "next/server";
-
-const BED_TYPES: BedType[] = ["raised", "container", "in-ground", "pot"];
 
 export async function PATCH(
   request: NextRequest,
@@ -12,8 +10,8 @@ export async function PATCH(
     const body = await request.json();
     const update: Record<string, unknown> = {};
     if (typeof body.name === "string" && body.name.trim()) update.name = body.name.trim();
-    if (BED_TYPES.includes(body.type)) update.type = body.type;
-    if (body.notes !== undefined) update.notes = body.notes?.trim() || null;
+    if (isBedType(body.type)) update.type = body.type;
+    if (body.notes !== undefined) update.notes = typeof body.notes === "string" ? body.notes.trim() || null : null;
 
     if (Object.keys(update).length === 0) {
       return Response.json({ error: "Nothing to update." }, { status: 400 });

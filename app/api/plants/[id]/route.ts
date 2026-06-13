@@ -1,9 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { PlantStatus, SunRequirement } from "@/lib/types";
+import { isPlantStatus, isSunRequirement } from "@/lib/types";
 import { NextRequest } from "next/server";
-
-const STATUSES: PlantStatus[] = ["wishlist", "planned", "planted", "growing", "harvesting", "done"];
-const SUNS: SunRequirement[] = ["full", "partial", "shade"];
 
 export async function PATCH(
   request: NextRequest,
@@ -16,9 +13,9 @@ export async function PATCH(
     if (typeof body.name === "string" && body.name.trim()) update.name = body.name.trim();
     if (typeof body.type === "string" && body.type.trim()) update.type = body.type.trim();
     if (body.qty !== undefined) update.qty = Math.max(1, Number(body.qty) || 1);
-    if (SUNS.includes(body.sun)) update.sun = body.sun;
-    if (STATUSES.includes(body.status)) update.status = body.status;
-    if (body.notes !== undefined) update.notes = body.notes?.trim() || null;
+    if (isSunRequirement(body.sun)) update.sun = body.sun;
+    if (isPlantStatus(body.status)) update.status = body.status;
+    if (body.notes !== undefined) update.notes = typeof body.notes === "string" ? body.notes.trim() || null : null;
     if (body.bed_id !== undefined) update.bed_id = body.bed_id || null;
 
     if (Object.keys(update).length === 0) {

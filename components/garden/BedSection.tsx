@@ -1,5 +1,6 @@
 import { Bed, Plant } from "@/lib/types";
 import { PlantCard } from "./PlantCard";
+import { BedEditButton } from "./BedEditButton";
 import { Layers } from "lucide-react";
 
 interface BedSectionProps {
@@ -25,6 +26,7 @@ export function BedSection({ bed, beds = [], editable = false }: BedSectionProps
           {BED_TYPE_LABEL[bed.type] ?? bed.type}
         </span>
         <span className="text-xs text-stone-400">{bed.plants.length} plants</span>
+        {editable && <BedEditButton bed={bed} />}
       </div>
       {bed.notes && (
         <p className="text-xs text-stone-500 italic">{bed.notes}</p>

@@ -1,10 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getActiveGardenId } from "@/lib/garden";
-import { PlantStatus, SunRequirement } from "@/lib/types";
+import { isPlantStatus, isSunRequirement, PlantStatus, SunRequirement } from "@/lib/types";
 import { NextRequest } from "next/server";
-
-const STATUSES: PlantStatus[] = ["wishlist", "planned", "planted", "growing", "harvesting", "done"];
-const SUNS: SunRequirement[] = ["full", "partial", "shade"];
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,8 +16,8 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: "No garden found yet." }, { status: 404 });
     }
 
-    const status: PlantStatus = STATUSES.includes(body.status) ? body.status : "planted";
-    const sun: SunRequirement = SUNS.includes(body.sun) ? body.sun : "full";
+    const status: PlantStatus = isPlantStatus(body.status) ? body.status : "planted";
+    const sun: SunRequirement = isSunRequirement(body.sun) ? body.sun : "full";
 
     const supabase = createAdminClient();
     const { data, error } = await supabase
@@ -32,7 +29,7 @@ export async function POST(request: NextRequest) {
         type: String(body.type ?? "herb").trim() || "herb",
         qty: Math.max(1, Number(body.qty) || 1),
         sun,
-        notes: body.notes?.trim() || null,
+        notes: typeof body.notes === "string" ? body.notes.trim() || null : null,
         status,
       })
       .select()

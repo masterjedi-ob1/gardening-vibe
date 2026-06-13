@@ -1,6 +1,9 @@
-// Shared option lists for inventory forms. Kept client-safe (no server imports).
-import { BedType, PlantStatus, SunRequirement } from "@/lib/types";
+// UI option lists for inventory forms. Derived from the canonical vocabularies
+// in lib/types.ts so the dropdowns can never drift from what the API accepts.
+// Client-safe (no server imports).
+import { BED_TYPES, PLANT_STATUSES, SUN_REQUIREMENTS, BedType, PlantStatus, SunRequirement } from "@/lib/types";
 
+// Plant `type` is free text in the schema; these are friendly presets.
 export const PLANT_TYPES: { value: string; label: string }[] = [
   { value: "tomato", label: "🍅 Tomato" },
   { value: "pepper", label: "🌶️ Pepper" },
@@ -12,24 +15,26 @@ export const PLANT_TYPES: { value: string; label: string }[] = [
   { value: "other", label: "🌱 Something else" },
 ];
 
-export const PLANT_STATUSES: { value: PlantStatus; label: string }[] = [
-  { value: "wishlist", label: "On the wishlist" },
-  { value: "planned", label: "Planned" },
-  { value: "planted", label: "Planted" },
-  { value: "growing", label: "Growing" },
-  { value: "harvesting", label: "Harvesting" },
-  { value: "done", label: "Done for the season" },
-];
+const STATUS_LABELS: Record<PlantStatus, string> = {
+  wishlist: "On the wishlist",
+  planned: "Planned",
+  planted: "Planted",
+  growing: "Growing",
+  harvesting: "Harvesting",
+  done: "Done for the season",
+};
+const SUN_LABELS: Record<SunRequirement, string> = {
+  full: "Full sun",
+  partial: "Partial sun",
+  shade: "Shade",
+};
+const BED_TYPE_LABELS: Record<BedType, string> = {
+  raised: "Raised bed",
+  container: "Container",
+  "in-ground": "In-ground",
+  pot: "Planter pots",
+};
 
-export const SUN_OPTIONS: { value: SunRequirement; label: string }[] = [
-  { value: "full", label: "Full sun" },
-  { value: "partial", label: "Partial sun" },
-  { value: "shade", label: "Shade" },
-];
-
-export const BED_TYPES: { value: BedType; label: string }[] = [
-  { value: "raised", label: "Raised bed" },
-  { value: "container", label: "Container" },
-  { value: "in-ground", label: "In-ground" },
-  { value: "pot", label: "Planter pots" },
-];
+export const PLANT_STATUS_OPTIONS = PLANT_STATUSES.map((v) => ({ value: v, label: STATUS_LABELS[v] }));
+export const SUN_OPTIONS = SUN_REQUIREMENTS.map((v) => ({ value: v, label: SUN_LABELS[v] }));
+export const BED_TYPE_OPTIONS = BED_TYPES.map((v) => ({ value: v, label: BED_TYPE_LABELS[v] }));
