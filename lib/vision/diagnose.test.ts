@@ -23,7 +23,17 @@ function haikuTextResponse(text: string) {
   return { content: [{ type: "text", text }], stop_reason: "end_turn" };
 }
 
-const ENV_KEYS = ["VISION_ENDPOINT_URL", "VISION_PROVIDER", "VISION_ENDPOINT_TOKEN", "HF_TOKEN", "ANTHROPIC_API_KEY"];
+const ENV_KEYS = [
+  "VISION_ENDPOINT_URL",
+  "VISION_PROVIDER",
+  "VISION_ENDPOINT_TOKEN",
+  "VISION_API_URL",
+  "VISION_HF_URL",
+  "VISION_API_KEY",
+  "VISION_MODEL",
+  "HF_TOKEN",
+  "ANTHROPIC_API_KEY",
+];
 const saved: Record<string, string | undefined> = {};
 
 beforeEach(() => {
@@ -50,20 +60,36 @@ describe("diagnoseImage routing", () => {
     expect(r.plant).toBe("Tomato");
   });
 
-  it("uses the HuggingFace provider when VISION_PROVIDER=huggingface", async () => {
+  it("uses an OpenAI-compatible provider preset (hyperbolic) and sends the right URL/model", async () => {
+    process.env.VISION_PROVIDER = "hyperbolic";
+    process.env.VISION_API_KEY = "provider-key";
+    const fetchSpy = vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ choices: [{ message: { content: QWEN_JSON } }] }), { status: 200 })
+    );
+    const r = await diagnoseImage("BASE64", "image/png");
+    expect(fetchSpy).toHaveBeenCalledOnce();
+    const [url, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe("https://api.hyperbolic.xyz/v1/chat/completions");
+    expect((init.headers as Record<string, string>).Authorization).toBe("Bearer provider-key");
+    expect(JSON.parse(init.body as string).model).toBe("Qwen/Qwen2.5-VL-7B-Instruct");
+    expect(haikuCreate).not.toHaveBeenCalled();
+    expect(r.model).toBe("hyperbolic:Qwen/Qwen2.5-VL-7B-Instruct");
+    expect(r.plant).toBe("Basil");
+  });
+
+  it("still supports the HuggingFace router preset (back-compat)", async () => {
     process.env.VISION_PROVIDER = "huggingface";
     const fetchSpy = vi.spyOn(global, "fetch").mockResolvedValue(
       new Response(JSON.stringify({ choices: [{ message: { content: QWEN_JSON } }] }), { status: 200 })
     );
     const r = await diagnoseImage("BASE64", "image/png");
     expect(fetchSpy).toHaveBeenCalledOnce();
-    expect(haikuCreate).not.toHaveBeenCalled();
     expect(r.model).toContain("huggingface:");
-    expect(r.plant).toBe("Basil");
   });
 
-  it("falls back to Haiku when the HuggingFace provider fails", async () => {
-    process.env.VISION_PROVIDER = "huggingface";
+  it("falls back to Haiku when the Qwen provider fails", async () => {
+    process.env.VISION_PROVIDER = "hyperbolic";
+    process.env.VISION_API_KEY = "provider-key";
     vi.spyOn(global, "fetch").mockResolvedValue(new Response("upstream boom", { status: 503 }));
     haikuCreate.mockResolvedValue(haikuTextResponse(HAIKU_JSON));
     const r = await diagnoseImage("BASE64", "image/jpeg");

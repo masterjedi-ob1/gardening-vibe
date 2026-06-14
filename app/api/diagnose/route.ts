@@ -1,6 +1,7 @@
 import { createGuestDataClient } from "@/lib/supabase/data";
 import { diagnoseImage } from "@/lib/vision";
 import { isSupportedImageType, UNSUPPORTED_IMAGE_MESSAGE } from "@/lib/vision/mime";
+import { resolveOpenAIVisionConfig } from "@/lib/vision/providers";
 import { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -20,11 +21,11 @@ export async function POST(request: NextRequest) {
       return Response.json({ error: UNSUPPORTED_IMAGE_MESSAGE }, { status: 415 });
     }
 
-    // The Haiku fallback can't run without a key; if no vision provider is
+    // The Haiku fallback can't run without a key; if no Qwen provider is
     // configured either, fail clearly rather than throwing deep in the stack.
     const hasProvider =
       !!process.env.VISION_ENDPOINT_URL ||
-      process.env.VISION_PROVIDER === "huggingface" ||
+      !!resolveOpenAIVisionConfig() ||
       !!process.env.ANTHROPIC_API_KEY;
     if (!hasProvider) {
       return Response.json(

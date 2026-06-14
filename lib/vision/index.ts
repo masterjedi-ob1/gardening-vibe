@@ -1,11 +1,21 @@
 // Thin vision interface for plant diagnosis.
 //
 // Routing (first match wins):
-//   1. VISION_ENDPOINT_URL set      → Andrew Brown's custom Qwen2.5-VL endpoint
-//   2. VISION_PROVIDER=huggingface  → HuggingFace Inference API (Qwen2.5-VL)
-//   3. otherwise                    → Claude Haiku vision (always-on fallback)
+//   1. VISION_ENDPOINT_URL set         → Andrew Brown's bespoke Qwen2.5-VL endpoint
+//                                        ({image, context} body)
+//   2. an OpenAI-compatible Qwen provider (VISION_API_URL / VISION_PROVIDER preset
+//      such as hyperbolic | together | novita | huggingface) → that provider
+//   3. otherwise                       → Claude Haiku vision (automatic fallback)
+//
+// Qwen is the priority model; Haiku is only the fallback when no provider is
+// configured or a provider call fails.
 
 import { normalizeImageMime } from "./mime";
+import {
+  resolveOpenAIVisionConfig,
+  resolveVisionToken,
+  type OpenAIVisionConfig,
+} from "./providers";
 
 export interface DiagnosisResult {
   plant: string;
@@ -63,14 +73,15 @@ export async function diagnoseImage(
   gardenContext?: string
 ): Promise<DiagnosisResult> {
   const endpoint = process.env.VISION_ENDPOINT_URL;
-  // Try the configured provider first; fall back to Haiku on any failure so a
-  // flaky/unavailable Qwen provider can never break diagnosis.
+  const openai = resolveOpenAIVisionConfig();
+  // Try the configured Qwen provider first; fall back to Haiku on any failure so
+  // a flaky/unavailable provider can never break diagnosis.
   try {
     if (endpoint) {
       return await diagnoseWithQwen(imageBase64, mimeType, endpoint, gardenContext);
     }
-    if (process.env.VISION_PROVIDER === "huggingface") {
-      return await diagnoseWithHuggingFace(imageBase64, mimeType, gardenContext);
+    if (openai) {
+      return await diagnoseWithOpenAICompatible(imageBase64, mimeType, openai, gardenContext);
     }
   } catch (err) {
     console.error("Primary vision provider failed; falling back to Haiku:", err);
@@ -113,25 +124,24 @@ async function diagnoseWithHaiku(
   return parseDiagnosis(text, "claude-haiku-vision");
 }
 
-// HuggingFace Inference API — OpenAI-compatible chat completions with image input.
-// Defaults to the HF router; set VISION_MODEL to pick a different VLM.
-async function diagnoseWithHuggingFace(
+// OpenAI-compatible chat completions with image input — the shared path for any
+// Qwen2.5-VL inference provider (Hyperbolic, Together, Novita, OpenRouter, the HF
+// router). URL/model/key come from env via resolveOpenAIVisionConfig.
+async function diagnoseWithOpenAICompatible(
   imageBase64: string,
   mimeType: string,
+  config: OpenAIVisionConfig,
   gardenContext?: string
 ): Promise<DiagnosisResult> {
-  const token = process.env.VISION_ENDPOINT_TOKEN || process.env.HF_TOKEN;
-  const model = process.env.VISION_MODEL || "Qwen/Qwen2.5-VL-7B-Instruct";
-  const url = process.env.VISION_HF_URL || "https://router.huggingface.co/v1/chat/completions";
-
-  const res = await fetch(url, {
+  const token = resolveVisionToken();
+  const res = await fetch(config.url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify({
-      model,
+      model: config.model,
       max_tokens: 512,
       messages: [
         { role: "system", content: buildSystemPrompt(gardenContext) },
@@ -147,12 +157,12 @@ async function diagnoseWithHuggingFace(
   });
 
   if (!res.ok) {
-    throw new Error(`HuggingFace vision request failed (${res.status})`);
+    throw new Error(`Qwen vision request failed (${res.status})`);
   }
 
   const json = await res.json();
   const text: string = json?.choices?.[0]?.message?.content ?? "{}";
-  return parseDiagnosis(text, `huggingface:${model}`);
+  return parseDiagnosis(text, config.label);
 }
 
 async function diagnoseWithQwen(
