@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify:storage": "node scripts/verify-storage.mjs"
+    "verify:storage": "node scripts/verify-storage.mjs",
+    "verify:vision": "node scripts/verify-vision.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.100.1",

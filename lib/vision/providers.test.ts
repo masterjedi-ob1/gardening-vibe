@@ -17,6 +17,16 @@ describe("resolveOpenAIVisionConfig", () => {
     expect(cfg?.label).toBe(`hyperbolic:${DEFAULT_VISION_MODEL}`);
   });
 
+  it("resolves the OpenRouter preset with the configured model", () => {
+    const cfg = resolveOpenAIVisionConfig({
+      VISION_PROVIDER: "openrouter",
+      VISION_MODEL: "qwen/qwen2.5-vl-72b-instruct",
+    });
+    expect(cfg?.url).toBe("https://openrouter.ai/api/v1/chat/completions");
+    expect(cfg?.model).toBe("qwen/qwen2.5-vl-72b-instruct");
+    expect(cfg?.label).toBe("openrouter:qwen/qwen2.5-vl-72b-instruct");
+  });
+
   it("is case-insensitive and trims the provider name", () => {
     const cfg = resolveOpenAIVisionConfig({ VISION_PROVIDER: "  Together " });
     expect(cfg?.url).toBe("https://api.together.xyz/v1/chat/completions");
